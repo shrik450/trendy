@@ -1,11 +1,11 @@
-namespace trendy
+namespace Trendy
 
 module HttpHandlers =
 
     open Microsoft.AspNetCore.Http
     open FSharp.Control.Tasks
     open Giraffe
-    open trendy.Models
+    open Trendy.Models
 
     let handleGetHello =
         fun (next : HttpFunc) (ctx : HttpContext) ->

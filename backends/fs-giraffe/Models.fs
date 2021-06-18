@@ -1,4 +1,4 @@
-namespace trendy.Models
+namespace Trendy.Models
 
 [<CLIMutable>]
 type Message =
