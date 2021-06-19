@@ -8,3 +8,6 @@ paket-files/
 
 # SQLite
 *.db
+
+.fake
+.ionide
