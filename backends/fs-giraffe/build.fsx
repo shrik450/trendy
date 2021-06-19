@@ -9,7 +9,6 @@ open Fake.Core
 open Fake.Core.TargetOperators
 open Fake.DotNet
 open Fake.IO
-open System.Threading
 
 // *** Properties ***
 let buildDir = "./bin/"
