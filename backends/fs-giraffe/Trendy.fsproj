@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <AssemblyName>Trendy.App</AssemblyName>
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Controllers/LinksController.fs" />
+    <!-- EF Stuff -->
+    <Compile Include="Models.fs" />
+    <Compile Include="Models/*.fs" />
+    <Compile Include="Contexts/*.fs" />
+    <Compile Include="Migrations/*.fs" />
+    <!-- Web Stuff -->
+    <Compile Include="HttpHandlers.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="web.config" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Import Project=".paket\Paket.Restore.targets" />
+</Project>

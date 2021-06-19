@@ -1,0 +1,7 @@
+source https://www.nuget.org/api/v2
+
+nuget FSharp.Core
+nuget EntityFrameworkCore.FSharp 5.0.3-beta004 prerelease
+nuget Giraffe 5.0.0-rc-6 prerelease
+nuget Microsoft.EntityFrameworkCore.Sqlite 5.0.7
+nuget Ply >= 0.3.0

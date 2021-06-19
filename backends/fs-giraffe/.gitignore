@@ -1,0 +1,10 @@
+bin/
+obj/
+
+# Paker
+.paket/
+packages/
+paket-files/
+
+# SQLite
+*.db
