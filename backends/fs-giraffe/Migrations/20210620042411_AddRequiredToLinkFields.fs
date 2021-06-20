@@ -10,15 +10,41 @@ open Microsoft.EntityFrameworkCore.Storage.ValueConversion
 open Trendy.Contexts
 
 [<DbContext(typeof<LinksContext.LinksContext>)>]
-type LinksContextModelSnapshot() =
-    inherit ModelSnapshot()
+[<Migration("20210620042411_AddRequiredToLinkFields")>]
+type AddRequiredToLinkFields() =
+    inherit Migration()
 
-    override this.BuildModel(modelBuilder: ModelBuilder) =
+    override this.Up(migrationBuilder:MigrationBuilder) =
+        migrationBuilder.AlterColumn<string>(
+            name = "Url"
+            ,table = "Links"
+            ,``type`` = "TEXT"
+            ,nullable = false
+            ,defaultValue = ""
+            ,oldClrType = typedefof<string>
+            ,oldType = "TEXT"
+            ,oldNullable = true
+            ) |> ignore
+
+
+    override this.Down(migrationBuilder:MigrationBuilder) =
+        migrationBuilder.AlterColumn<string>(
+            name = "Url"
+            ,table = "Links"
+            ,``type`` = "TEXT"
+            ,nullable = true
+            ,oldClrType = typedefof<string>
+            ,oldType = "TEXT"
+            ,oldNullable = false
+            ) |> ignore
+
+
+    override this.BuildTargetModel(modelBuilder: ModelBuilder) =
         modelBuilder
             .HasAnnotation("ProductVersion", "5.0.7")
             |> ignore
 
-        modelBuilder.Entity("Trendy.Models.DatabaseTypes+Link", (fun b ->
+        modelBuilder.Entity("Trendy.Models.Link+Link", (fun b ->
 
             b.Property<int>("Id")
                 .ValueGeneratedOnAdd()
@@ -28,8 +54,7 @@ type LinksContextModelSnapshot() =
             b.Property<string>("Url")
                 .IsRequired()
                 .HasColumnType("TEXT") |> ignore
-            b.Property<int>("UserId")
-                .IsRequired()
+            b.Property<Nullable<int>>("UserId")
                 .HasColumnType("INTEGER") |> ignore
 
             b.HasKey("Id") |> ignore
@@ -41,7 +66,7 @@ type LinksContextModelSnapshot() =
 
         )) |> ignore
 
-        modelBuilder.Entity("Trendy.Models.DatabaseTypes+User", (fun b ->
+        modelBuilder.Entity("Trendy.Models.User+User", (fun b ->
 
             b.Property<int>("Id")
                 .ValueGeneratedOnAdd()
@@ -86,11 +111,9 @@ type LinksContextModelSnapshot() =
 
         )) |> ignore
 
-        modelBuilder.Entity("Trendy.Models.DatabaseTypes+Link", (fun b ->
-            b.HasOne("Trendy.Models.DatabaseTypes+User","User")
-                .WithMany("Links")
-                .HasForeignKey("UserId")
-                .OnDelete(DeleteBehavior.Cascade)
-                .IsRequired() |> ignore
+        modelBuilder.Entity("Trendy.Models.Link+Link", (fun b ->
+            b.HasOne("Trendy.Models.User+User","User")
+                .WithMany()
+                .HasForeignKey("UserId") |> ignore
         )) |> ignore
 

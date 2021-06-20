@@ -10,7 +10,9 @@
     <Compile Include="Controllers/LinksController.fs" />
     <!-- EF Stuff -->
     <Compile Include="Models.fs" />
-    <Compile Include="Models/*.fs" />
+    <Compile Include="Models/DatabaseTypes.fs" />
+    <Compile Include="Models/Link.fs" />
+    <Compile Include="Models/User.fs" />
     <Compile Include="Contexts/*.fs" />
     <Compile Include="Migrations/*.fs" />
     <!-- Web Stuff -->

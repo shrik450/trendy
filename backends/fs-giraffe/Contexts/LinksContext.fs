@@ -3,8 +3,7 @@ namespace Trendy.Contexts
 
 open Microsoft.EntityFrameworkCore
 open EntityFrameworkCore.FSharp.Extensions
-open Trendy.Models.Link
-open Trendy.Models.User
+open Trendy.Models.DatabaseTypes
 
 module LinksContext =
     type LinksContext() =
