@@ -3,7 +3,6 @@ namespace Trendy.Models
 open System.ComponentModel.DataAnnotations
 
 module DatabaseTypes =
-    open Microsoft.AspNetCore.Identity
 
     [<CLIMutable>]
     type Link =
@@ -14,11 +13,19 @@ module DatabaseTypes =
           Notes: string
           [<Required>]
           User: User }
-    and User() =
-        inherit IdentityUser<int>()
-        
-        [<DefaultValue>]
-        val mutable links: Link list
-
-        member this.Links with get () = this.links and set(v) = this.links <- v
+    and User =
+        {
+            [<Key>]
+            Id: int
+            [<Required>]
+            Name: string
+            // Also has an index and uniqueness defined via the fluent API
+            // Check the context for more details.
+            [<Required>]
+            Email: string
+            [<Required>]
+            EncryptedPassword: string
+            
+            mutable Links: Link list
+        }
     

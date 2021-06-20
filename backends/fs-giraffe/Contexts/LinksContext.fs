@@ -23,7 +23,11 @@ module LinksContext =
             with get () = this.users
             and set (v) = this.users <- v
 
-        override _.OnModelCreating builder = builder.RegisterOptionTypes()
+        override _.OnModelCreating builder =
+            builder.RegisterOptionTypes()
+            builder.Entity<User>()
+                .HasIndex([|"Email"|])
+                .IsUnique() |> ignore
 
         override _.OnConfiguring(options) =
             options.UseSqlite("Data Source = links.db")

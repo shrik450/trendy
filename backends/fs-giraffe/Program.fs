@@ -8,7 +8,9 @@ open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.Logging
 open Microsoft.Extensions.DependencyInjection
 open Giraffe
+
 open Trendy.HttpHandlers
+open Trendy.Contexts
 
 // ---------------------------------
 // Web app
@@ -58,6 +60,7 @@ let configureApp (app: IApplicationBuilder) =
 let configureServices (services: IServiceCollection) =
     services.AddCors() |> ignore
     services.AddGiraffe() |> ignore
+    services.AddDbContext<LinksContext.LinksContext>(ignore) |> ignore
 
 let configureLogging (builder: ILoggingBuilder) =
     builder.AddConsole().AddDebug() |> ignore
