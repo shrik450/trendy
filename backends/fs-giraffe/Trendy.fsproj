@@ -7,16 +7,17 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Controllers/LinksController.fs" />
     <!-- EF Stuff -->
     <Compile Include="Models.fs" />
     <Compile Include="Models/DatabaseTypes.fs" />
     <Compile Include="Models/Link.fs" />
     <Compile Include="Models/User.fs" />
     <Compile Include="Contexts/*.fs" />
-    <Compile Include="Migrations/*.fs" />
     <!-- Web Stuff -->
+    <Compile Include="Controllers/*.fs" />
     <Compile Include="HttpHandlers.fs" />
+    <!-- Stuff that's there to make things work -->
+    <Compile Include="Migrations/*.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>

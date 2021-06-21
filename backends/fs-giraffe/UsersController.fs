@@ -1,3 +1,0 @@
-namespace Trendy.Controllers
-
-module UsersController

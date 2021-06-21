@@ -50,17 +50,16 @@ let configureApp (app: IApplicationBuilder) =
 
     (match env.IsDevelopment() with
      | true -> app.UseDeveloperExceptionPage()
-     | false ->
-         app
-             .UseGiraffeErrorHandler(errorHandler)
-             .UseHttpsRedirection())
+     | false -> app.UseGiraffeErrorHandler(errorHandler))
         .UseCors(configureCors)
         .UseGiraffe(webApp)
 
 let configureServices (services: IServiceCollection) =
     services.AddCors() |> ignore
     services.AddGiraffe() |> ignore
-    services.AddDbContext<LinksContext.LinksContext>(ignore) |> ignore
+
+    services.AddDbContext<LinksContext.LinksContext>()
+    |> ignore
 
 let configureLogging (builder: ILoggingBuilder) =
     builder.AddConsole().AddDebug() |> ignore

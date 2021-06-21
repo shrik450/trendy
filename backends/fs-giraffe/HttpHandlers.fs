@@ -6,4 +6,5 @@ module HttpHandlers =
     open Trendy.Controllers
 
     let router : HttpHandler =
-        choose [ subRoute "/links" (LinksController.router) ]
+        choose [ subRoute "/links" (LinksController.router)
+                 subRoute "/users" (UsersController.router) ]
