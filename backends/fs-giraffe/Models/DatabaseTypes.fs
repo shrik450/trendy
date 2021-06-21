@@ -13,7 +13,9 @@ module DatabaseTypes =
           Notes: string
           [<Required>]
           User: User }
-    and User =
+    
+    and [<CLIMutable>] 
+    User =
         {
             [<Key>]
             Id: int

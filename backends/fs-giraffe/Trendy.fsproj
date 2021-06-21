@@ -22,5 +22,8 @@
   <ItemGroup>
     <None Include="web.config" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.2" />
+  </ItemGroup>
   <Import Project=".paket\Paket.Restore.targets" />
 </Project>
