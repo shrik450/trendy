@@ -13,14 +13,14 @@ module UserValidation =
     let validateEmailUniquness
         (dbContext : LinksContext)
         ({Id = id; Email = email} : User.AllowedParams) =
-            let q = query {
+            query {
                 for user in dbContext.Users do
                 where (user.Id <> id && user.Email = email)
                 count
             }
-            match q with
-            | 0 -> Ok ()
-            | _ -> Error ("Email", "has already been taken.")
+            |> function
+                | 0 -> Ok ()
+                | _ -> Error ("Email", "has already been taken.")
 
     let validatePasswordConfirmation
         ({Password = password; ConfirmPassword = confirmPassword} : User.AllowedParams) =
