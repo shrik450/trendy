@@ -15,6 +15,10 @@
     <Compile Include="Models/Link.fs" />
     <Compile Include="Models/User.fs" />
     <Compile Include="Contexts/*.fs" />
+    <!-- Business Logic stuff that depends on Db Access as well -->
+    <Compile Include="Services/Validation.fs" />
+    <Compile Include="Services/UserValidation.fsi" />
+    <Compile Include="Services/UserValidation.fs" />
     <!-- Web Stuff -->
     <Compile Include="Controllers/*.fs" />
     <Compile Include="HttpHandlers.fs" />

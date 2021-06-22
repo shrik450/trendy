@@ -20,8 +20,6 @@ let webApp =
     choose [ router
              setStatusCode 404 >=> text "Not Found" ]
 
-
-
 // ---------------------------------
 // Error handler
 // ---------------------------------
@@ -31,7 +29,7 @@ let errorHandler (ex: Exception) (logger: ILogger) =
 
     clearResponse
     >=> setStatusCode 500
-    >=> text ex.Message
+    >=> text "An error occurred while processing this request."
 
 // ---------------------------------
 // Config and Main

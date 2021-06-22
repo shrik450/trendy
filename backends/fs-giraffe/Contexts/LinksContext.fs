@@ -1,6 +1,5 @@
 namespace Trendy.Contexts
 
-
 open Microsoft.EntityFrameworkCore
 open EntityFrameworkCore.FSharp.Extensions
 open Trendy.Models.DatabaseTypes
