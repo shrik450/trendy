@@ -1,12 +1,14 @@
 namespace Trendy.Controllers
 
+open FSharp.Control.Tasks
+open Microsoft.Extensions.Logging
+open System.Threading.Tasks
 open Microsoft.AspNetCore.Http
 open BCrypt.Net
 open Giraffe
 
+open Trendy
 open Trendy.Contexts
-open FSharp.Control.Tasks
-open Microsoft.Extensions.Logging
 
 module UsersController =
 
@@ -22,16 +24,28 @@ module UsersController =
           Email: string
           Password: string }
 
+    let userOfGetParams (context : LinksContext) (requestParams : GetParams) =
+        requestParams.Id |> context.Users.FindAsync |> Utils.optionTaskOfNullableValueTask
+
+    
+    let userOfPostParams (requestParams : PostParams) : User.T =
+        {
+            Id = 0
+            Name = requestParams.Name
+            Email = requestParams.Email
+            EncryptedPassword = requestParams.Password |> BCrypt.EnhancedHashPassword
+            Links = []
+        }
+
     let show (requestParams: GetParams) : HttpHandler =
         fun (next: HttpFunc) (ctx: HttpContext) ->
             task {
                 let dbContext = ctx.GetService<LinksContext>()
-
-                let user = dbContext.Users.Find(requestParams.Id)
-
-                match box user with
-                | null -> return! (RequestErrors.NOT_FOUND "Not Found.") next ctx
-                | _ -> return! Successful.ok (json user) next ctx
+                match! requestParams |> userOfGetParams dbContext with
+                | Some user -> 
+                    return! Successful.ok (json user) next ctx
+                | None -> 
+                    return! RequestErrors.NOT_FOUND "Not Found." next ctx
             }
 
     let create : HttpHandler =
@@ -41,21 +55,14 @@ module UsersController =
                 let dbContext = ctx.GetService<LinksContext>()
                 let! requestParams = ctx.BindJsonAsync<PostParams>()
 
-                let encryptedPassword =
-                    BCrypt.EnhancedHashPassword(requestParams.Password)
-
-                let newUser : User.T =
-                    { Id = 0
-                      Name = requestParams.Name
-                      Email = requestParams.Email
-                      EncryptedPassword = encryptedPassword
-                      Links = [] }
-
-                dbContext.Users.Add(newUser) |> ignore
+                requestParams 
+                |> userOfPostParams 
+                |> dbContext.Users.Add 
+                |> ignore
 
                 try
                     let! _ = dbContext.SaveChangesAsync()
-                    return! Successful.created (json newUser) next ctx
+                    return! Successful.CREATED "" next ctx
                 with
                 | _ ->
                     logger.LogCritical("Failed to save to db")
