@@ -15,25 +15,20 @@ let authorize : HttpHandler =
     requiresAuthentication (challenge JwtBearerDefaults.AuthenticationScheme)
 
 let emailClaim (ctx: HttpContext) =
-    task {
         let claims = ctx.User.Claims
+        query {
+            for claim in claims do
+                where (claim.Type = JwtRegisteredClaimNames.Email)
+                select claim
+                exactlyOneOrDefault
+        }
+        |> resultOfNullable "No email Claim found in JWT."
 
-        return
-            query {
-                for claim in claims do
-                    where (claim.Type = JwtRegisteredClaimNames.Email)
-                    select claim
-                    exactlyOneOrDefault
-            }
-            |> optionOfNullable
-    }
-
-let emailOfClaim (claim: Claim) = task { return Some claim.Value }
+let emailOfClaim (claim: Claim) = Ok claim.Value
 
 let currentUser (ctx: HttpContext) =
     let dbContext = ctx.GetService<LinksContext>()
 
     ctx
-    |> (emailClaim
-        >>~> emailOfClaim
-        >>~> User.findByEmailAsync dbContext)
+    |> (((emailClaim >=>> emailOfClaim) |> asyncFOfSyncF)
+        >~> User.findByEmailAsync dbContext)

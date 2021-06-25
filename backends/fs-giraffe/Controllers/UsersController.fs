@@ -39,8 +39,8 @@ module UsersController =
         fun (next: HttpFunc) (ctx: HttpContext) ->
             task {
                 match! currentUser ctx with
-                | Some user -> return! Successful.ok (json user) next ctx
-                | None -> return! RequestErrors.NOT_FOUND "Not Found." next ctx
+                | Ok user -> return! Successful.ok (json user) next ctx
+                | Error _ -> return! RequestErrors.NOT_FOUND "Not Found." next ctx
             }
 
     let create : HttpHandler =
@@ -73,7 +73,7 @@ module UsersController =
                 let! updateParams = ctx.BindJsonAsync<BodyParams>()
 
                 match! currentUser ctx with
-                | Some user ->
+                | Ok user ->
                     let validationResult =
                         updateParams
                         |> userOfUpdateParams user.Id
@@ -94,7 +94,7 @@ module UsersController =
 
                         let! _ = dbContext.SaveChangesAsync()
                         return! Successful.NO_CONTENT next ctx
-                | None ->
+                | Error _ ->
                     return!
                         RequestErrors.notFound
                             (json {| error = "Not Found" |})

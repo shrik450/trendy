@@ -1,4 +1,5 @@
 namespace Trendy
+
 open FSharp.Control.Tasks
 open System.Threading.Tasks
 
@@ -8,13 +9,13 @@ module Utils =
         | null -> None
         | _ -> Some value
 
-    let optionTaskOfNullableTask (asyncValue : Task<'a>) =
+    let optionTaskOfNullableTask (asyncValue: Task<'a>) =
         task {
             let! result = asyncValue
             return result |> optionOfNullable
         }
 
-    let optionTaskOfNullableValueTask (asyncValue : ValueTask<'a>) =
+    let optionTaskOfNullableValueTask (asyncValue: ValueTask<'a>) =
         task {
             let! result = asyncValue
             return result |> optionOfNullable
@@ -26,10 +27,40 @@ module Utils =
             return result |> optionOfNullable
         }
 
-    let resultOfNullable value =
+    let resultOfNullable message value =
         match box value with
-        | null -> Error "Null"
+        | null -> Error message
         | _ -> Ok value
+
+    let resultOfOption errorMessage opt =
+        match opt with
+        | Some value -> Ok value
+        | None -> Error errorMessage
+
+    let asyncFOfSyncF f a =
+        task {
+            return f a
+        }
+
+    let asyncResultOfAsyncOption (errorMessage: 'a) (opt: 'b option Task) =
+        task {
+            let! res = opt
+            return resultOfOption errorMessage res
+        }
+
+    let resultFOfOptionF
+        (errorMessage: 'a)
+        (opt: 'b -> 'c option)
+        (arg: 'b) =
+            arg |> opt |> resultOfOption errorMessage
+
+    let asyncResultFOfAsyncOptionF
+        (errorMessage: 'a)
+        (opt: 'b -> 'c option Task)
+        (arg: 'b) =
+            arg
+            |> opt
+            |> asyncResultOfAsyncOption errorMessage
 
     // The following definition is from Scott Wlaschin's "Railway Oriented
     // Programming" post, with the operator changed. Giraffe reserves the
@@ -45,22 +76,9 @@ module Utils =
         | Error f -> Error f
 
     /// An async version of the >=>> operator.
-    let (>~>)
-        (switch1 : 'a -> Task<Result<'b, 'c>>)
-        (switch2 : 'b -> Task<Result<'d, 'c>>)
-        x =
-            task {
-                match! switch1 x with
-                | Ok s -> return! switch2 s
-                | Error f -> return Error f
-            }
-
-    let (>>~>)
-        (switch1 : 'a -> Task<'b option>)
-        (switch2 : 'b -> Task<'c option>)
-        x =
-            task {
-                match! switch1 x with
-                | Some s -> return! switch2 s
-                | None -> return None
-            }
+    let (>~>) (switch1: 'a -> Task<Result<'b, 'c>>) (switch2: 'b -> Task<Result<'d, 'c>>) x =
+        task {
+            match! switch1 x with
+            | Ok s -> return! switch2 s
+            | Error f -> return Error f
+        }

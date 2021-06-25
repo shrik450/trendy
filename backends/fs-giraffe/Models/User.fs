@@ -24,13 +24,13 @@ let userOfAllowedParams (allowedParams : AllowedParams) : T =
         Links = []
     }
 
-let findByEmail (dbContext : LinksContext) (email : string) : T option =
+let findByEmail (dbContext : LinksContext) (email : string) : Result<T, string> =
     query {
         for user in dbContext.Users do
         where (user.Email = email)
         select user
         exactlyOneOrDefault
-    } |> Utils.optionOfNullable
+    } |> Utils.resultOfNullable "User is not present"
 
 let findByEmailAsync (dbContext : LinksContext) (email : string) =
     task {
