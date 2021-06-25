@@ -13,9 +13,13 @@
     <!-- EF Stuff -->
     <Compile Include="Models.fs" />
     <Compile Include="Models/DatabaseTypes.fs" />
+    <!--
+      The order here is specific:
+      The DbContext is useful for the helper functions in the model modules.
+    -->
+    <Compile Include="Contexts/*.fs" />
     <Compile Include="Models/Link.fs" />
     <Compile Include="Models/User.fs" />
-    <Compile Include="Contexts/*.fs" />
     <!-- Business Logic stuff that depends on Db Access as well -->
     <Compile Include="Services/Validation.fs" />
     <Compile Include="Services/UserValidation.fsi" />

@@ -43,3 +43,14 @@ module Utils =
         match switch1 x with
         | Ok s -> switch2 s
         | Error f -> Error f
+
+    /// An async version of the >=>> operator.
+    let (>~>)
+        (switch1 : 'a -> Task<Result<'b, 'c>>)
+        (switch2 : 'b -> Task<Result<'d, 'c>>)
+        x =
+            task {
+                match! switch1 x with
+                | Ok s -> return! switch2 s
+                | Error f -> return Error f
+            }

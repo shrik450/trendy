@@ -23,20 +23,20 @@ module SessionsController =
     type BodyParams = { Email: string; Password: string }
 
     let userOfBodyParams (dbContext: LinksContext) { Email = email } =
-        query {
-            for user in dbContext.Users do
-                where (user.Email = email)
-                select user
-                exactlyOneOrDefault
+        task {
+            match! User.findByEmailAsync dbContext email with
+            | Some user -> return Ok user
+            | None -> return Error "Not Found."
         }
-        |> Utils.resultOfNullable
 
-    let authenticateUser
-        ({Password = password}: BodyParams)
-        (user : User.T) =
+    // This doesn't strictly need to be async, but it is because
+    // we'll be using the >~> operator to combine it.
+    let authenticateUser ({ Password = password }: BodyParams) (user: User.T) =
+        task {
             match BCrypt.EnhancedVerify(password, user.EncryptedPassword) with
-            | true -> Ok user
-            | false -> Error "Unauthorized"
+            | true -> return Ok user
+            | false -> return Error "Unauthorized"
+        }
 
 
     let createJwtToken config (user: User.T) =
@@ -69,9 +69,9 @@ module SessionsController =
 
                 let authenticate =
                     userOfBodyParams dbContext
-                    >=>> authenticateUser requestParams
+                    >~> authenticateUser requestParams
 
-                match authenticate requestParams with
+                match! authenticate requestParams with
                 | Ok user ->
                     let token = createJwtToken config user
                     return! Successful.ok (json {| token = token |}) next ctx
