@@ -25,8 +25,8 @@ module SessionsController =
     let userOfBodyParams (dbContext: LinksContext) { Email = email } =
         task {
             match! User.findByEmailAsync dbContext email with
-            | Some user -> return Ok user
-            | None -> return Error "Not Found."
+            | Some user -> return Some user
+            | None -> return None
         }
 
     // This doesn't strictly need to be async, but it is because
@@ -34,10 +34,9 @@ module SessionsController =
     let authenticateUser ({ Password = password }: BodyParams) (user: User.T) =
         task {
             match BCrypt.EnhancedVerify(password, user.EncryptedPassword) with
-            | true -> return Ok user
-            | false -> return Error "Unauthorized"
+            | true -> return Some user
+            | false -> return None
         }
-
 
     let createJwtToken config (user: User.T) =
         let securityKey =
@@ -67,15 +66,15 @@ module SessionsController =
                 let config = ctx.GetService<IConfigStore>().Config
                 let! requestParams = ctx.BindJsonAsync<BodyParams>()
 
-                let authenticate =
+                let authenticatedUserOf =
                     userOfBodyParams dbContext
-                    >~> authenticateUser requestParams
+                    >>~> authenticateUser requestParams
 
-                match! authenticate requestParams with
-                | Ok user ->
+                match! authenticatedUserOf requestParams with
+                | Some user ->
                     let token = createJwtToken config user
                     return! Successful.ok (json {| token = token |}) next ctx
-                | Error _ ->
+                | None ->
                     return!
                         RequestErrors.unauthorized
                             "Basic"

@@ -21,6 +21,7 @@
     <Compile Include="Models/Link.fs" />
     <Compile Include="Models/User.fs" />
     <!-- Business Logic stuff that depends on Db Access as well -->
+    <Compile Include="Services/Authentication.fs" />
     <Compile Include="Services/Validation.fs" />
     <Compile Include="Services/UserValidation.fsi" />
     <Compile Include="Services/UserValidation.fs" />

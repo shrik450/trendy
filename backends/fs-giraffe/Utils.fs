@@ -54,3 +54,13 @@ module Utils =
                 | Ok s -> return! switch2 s
                 | Error f -> return Error f
             }
+
+    let (>>~>)
+        (switch1 : 'a -> Task<'b option>)
+        (switch2 : 'b -> Task<'c option>)
+        x =
+            task {
+                match! switch1 x with
+                | Some s -> return! switch2 s
+                | None -> return None
+            }
