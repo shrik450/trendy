@@ -12,23 +12,9 @@ open Giraffe
 open Microsoft.IdentityModel.Tokens
 open Trendy.HttpHandlers
 open Trendy.Contexts
+open Trendy.Configuration
 open Microsoft.AspNetCore.Authentication.JwtBearer
-open Microsoft.Extensions.Configuration
-open System.IO
-open FsConfig
 open System.Text
-
-type AuthorizationConfig = { Key: string; Issuer: string }
-
-type Config = { Authorization: AuthorizationConfig }
-
-let configurationRoot =
-    ConfigurationBuilder()
-        .SetBasePath(Directory.GetCurrentDirectory())
-        .AddJsonFile("appsettings.json")
-        .Build()
-
-let appConfig = AppConfig(configurationRoot)
 
 // ---------------------------------
 // Web app
@@ -72,8 +58,7 @@ let configureApp (app: IApplicationBuilder) =
         .UseGiraffe(webApp)
 
 let jwtBearerOptions (cfg: JwtBearerOptions) =
-    // If this fails, the app might as well not start.
-    let (Ok config) = appConfig.Get<Config>()
+    let config = ConfigStore().Config
 
     cfg.SaveToken <- true
     cfg.IncludeErrorDetails <- true
@@ -92,6 +77,7 @@ let configureServices (services: IServiceCollection) =
         .AddCors()
         .AddGiraffe()
         .AddDbContext<LinksContext.LinksContext>()
+        .AddSingleton<IConfigStore, ConfigStore>()
         .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer |> ignore
 

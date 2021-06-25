@@ -7,8 +7,9 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
-    <!-- My Core utilrs -->
+    <!-- My Core utils -->
     <Compile Include="Utils.fs" />
+    <Compile Include="Configuration.fs" />
     <!-- EF Stuff -->
     <Compile Include="Models.fs" />
     <Compile Include="Models/DatabaseTypes.fs" />
