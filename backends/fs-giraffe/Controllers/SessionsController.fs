@@ -18,6 +18,7 @@ open BCrypt.Net
 module SessionsController =
     open LinksContext
     open Trendy.Models
+    open Trendy.Utils
 
     type BodyParams = { Email: string; Password: string }
 
@@ -26,10 +27,19 @@ module SessionsController =
             for user in dbContext.Users do
                 where (user.Email = email)
                 select user
-                exactlyOne
+                exactlyOneOrDefault
         }
+        |> Utils.resultOfNullable
 
-    let createJwtToken config (user : User.T) =
+    let authenticateUser
+        ({Password = password}: BodyParams)
+        (user : User.T) =
+            match BCrypt.EnhancedVerify(password, user.EncryptedPassword) with
+            | true -> Ok user
+            | false -> Error "Unauthorized"
+
+
+    let createJwtToken config (user: User.T) =
         let securityKey =
             SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.Authorization.Key))
 
@@ -46,7 +56,9 @@ module SessionsController =
             DateTime.Now,
             DateTime.Now.AddMinutes(180.0),
             credentials
-        ) |> JwtSecurityTokenHandler().WriteToken
+        )
+        |> JwtSecurityTokenHandler().WriteToken
+
 
     let create : HttpHandler =
         fun next ctx ->
@@ -55,23 +67,22 @@ module SessionsController =
                 let config = ctx.GetService<IConfigStore>().Config
                 let! requestParams = ctx.BindJsonAsync<BodyParams>()
 
-                let user = userOfBodyParams dbContext requestParams
+                let authenticate =
+                    userOfBodyParams dbContext
+                    >=>> authenticateUser requestParams
 
-                match BCrypt.EnhancedVerify(requestParams.Password, user.EncryptedPassword) with
-                | true ->
+                match authenticate requestParams with
+                | Ok user ->
                     let token = createJwtToken config user
                     return! Successful.ok (json {| token = token |}) next ctx
-                | false ->
+                | Error _ ->
                     return!
                         RequestErrors.unauthorized
                             "Basic"
                             "App"
-                            (json {| error = "Invalid" |})
+                            (json {| error = "Invalid username or password." |})
                             next
                             ctx
             }
 
-    let router : HttpHandler =
-        choose [
-            POST >=> route "/" >=> create
-        ]
+    let router : HttpHandler = choose [ POST >=> route "/" >=> create ]
