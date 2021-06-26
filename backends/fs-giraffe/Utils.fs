@@ -32,6 +32,11 @@ module Utils =
         | null -> Error message
         | _ -> Ok value
 
+    let valueOrFallback value fallback =
+        match box value with
+        | null -> fallback
+        | _ -> value
+
     let resultOfOption errorMessage opt =
         match opt with
         | Some value -> Ok value

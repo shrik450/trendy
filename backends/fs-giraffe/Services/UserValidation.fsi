@@ -1,10 +1,9 @@
-namespace Trendy.Services
+module Trendy.Services.UserValidation
 
 open Trendy.Contexts.LinksContext
 open Trendy.Models
 
-module UserValidation =
-    val validate :
-        LinksContext ->
-        User.AllowedParams ->
-        Result<User.AllowedParams, Validation.ValidationErrors>
+val validate :
+    LinksContext ->
+    User.AllowedParams ->
+    Result<User.AllowedParams, Validation.ValidationErrors>

@@ -68,6 +68,7 @@ let jwtBearerOptions (cfg: JwtBearerOptions) =
     cfg.TokenValidationParameters.ValidateLifetime <- true
     cfg.TokenValidationParameters.ValidateIssuerSigningKey <- true
     cfg.TokenValidationParameters.ValidIssuer <- config.Authorization.Issuer
+    cfg.TokenValidationParameters.ValidAudience <- config.Authorization.Issuer
 
     cfg.TokenValidationParameters.IssuerSigningKey <-
         SymmetricSecurityKey(Encoding.UTF8.GetBytes(config.Authorization.Key))
@@ -77,9 +78,11 @@ let configureServices (services: IServiceCollection) =
         .AddCors()
         .AddGiraffe()
         .AddDbContext<LinksContext.LinksContext>()
-        .AddSingleton<IConfigStore, ConfigStore>()
+        .AddSingleton<IConfigStore, ConfigStore>() |> ignore
+
+    services
         .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer |> ignore
+        .AddJwtBearer(Action<JwtBearerOptions> jwtBearerOptions) |> ignore
 
 let configureLogging (builder: ILoggingBuilder) =
     builder.AddConsole().AddDebug() |> ignore
