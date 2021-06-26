@@ -23,9 +23,7 @@ let create : HttpHandler =
             let dbContext = ctx.GetService<LinksContext>()
             let config = ctx.GetService<IConfigStore>().Config
             let! requestParams = ctx.BindJsonAsync<BodyParams>()
-
-            let safePassword =
-                requestParams.Password |> valueOrFallback ""
+            let safePassword = valueOrFallback requestParams.Password ""
 
             let authenticate =
                 userOfBodyParams dbContext

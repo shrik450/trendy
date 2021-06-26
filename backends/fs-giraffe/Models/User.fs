@@ -9,7 +9,7 @@ open FSharp.Control.Tasks
 type T = DatabaseTypes.User
 
 type AllowedParams =
-    { Id: int
+    { Id : int
       Name: string
       Email: string
       Password: string

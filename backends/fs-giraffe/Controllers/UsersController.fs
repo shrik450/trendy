@@ -24,7 +24,7 @@ type BodyParams =
 type SerializableUser = { Name: string; Email: string }
 
 let userOfBodyParams (requestParams: BodyParams) : User.AllowedParams =
-    { Id = -1
+    { Id = 0
       Name = requestParams.Name
       Email = requestParams.Email
       Password = requestParams.Password

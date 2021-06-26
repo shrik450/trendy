@@ -1,6 +1,7 @@
 namespace Trendy.Models
 
 open System.ComponentModel.DataAnnotations
+open System.ComponentModel.DataAnnotations.Schema
 
 module DatabaseTypes =
 
@@ -13,11 +14,12 @@ module DatabaseTypes =
           Notes: string
           [<Required>]
           User: User }
-    
-    and [<CLIMutable>] 
+
+    and [<CLIMutable>]
     User =
         {
             [<Key>]
+            [<DatabaseGenerated(DatabaseGeneratedOption.Identity)>]
             Id: int
             [<Required>]
             Name: string
@@ -27,7 +29,6 @@ module DatabaseTypes =
             Email: string
             [<Required>]
             EncryptedPassword: string
-            
+
             mutable Links: Link list
         }
-    
