@@ -27,7 +27,7 @@ let create : HttpHandler =
 
             let authenticate =
                 userOfBodyParams dbContext
-                >~> ((authenticateUser safePassword) |> asyncFOfSyncF)
+                >~> ((authenticateUser safePassword) |> asyncify)
 
             match! authenticate requestParams with
             | Ok user ->

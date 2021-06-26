@@ -61,5 +61,5 @@ let currentUser (ctx: HttpContext) =
     let dbContext = ctx.GetService<LinksContext>()
 
     ctx
-    |> (((emailClaim >=>> emailOfClaim) |> asyncFOfSyncF)
+    |> (((emailClaim >=>> emailOfClaim) |> asyncify)
         >~> User.findByEmailAsync dbContext)
