@@ -12,3 +12,6 @@ type DesignTimeServices() =
 
             fSharpServices.ConfigureDesignTimeServices serviceCollection
             ()
+
+type IPageable =
+    abstract member Id: int

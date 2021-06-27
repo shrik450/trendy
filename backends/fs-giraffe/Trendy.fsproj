@@ -25,6 +25,7 @@
     <Compile Include="Services/Validation.fs" />
     <Compile Include="Services/UserValidation.fsi" />
     <Compile Include="Services/UserValidation.fs" />
+    <Compile Include="Services\Pagination.fs" />
     <!-- Web Stuff -->
     <Compile Include="Controllers/*.fs" />
     <Compile Include="HttpHandlers.fs" />

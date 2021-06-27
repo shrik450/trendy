@@ -14,21 +14,20 @@ module DatabaseTypes =
           Notes: string
           [<Required>]
           User: User }
+        interface IPageable with
+            member this.Id = this.Id
 
-    and [<CLIMutable>]
-    User =
-        {
-            [<Key>]
-            [<DatabaseGenerated(DatabaseGeneratedOption.Identity)>]
-            Id: int
-            [<Required>]
-            Name: string
-            // Also has an index and uniqueness defined via the fluent API
-            // Check the context for more details.
-            [<Required>]
-            Email: string
-            [<Required>]
-            EncryptedPassword: string
+    and [<CLIMutable>] User =
+        { [<Key>]
+          [<DatabaseGenerated(DatabaseGeneratedOption.Identity)>]
+          Id: int
+          [<Required>]
+          Name: string
+          // Also has an index and uniqueness defined via the fluent API
+          // Check the context for more details.
+          [<Required>]
+          Email: string
+          [<Required>]
+          EncryptedPassword: string
 
-            mutable Links: Link list
-        }
+          mutable Links: Link list }

@@ -117,6 +117,6 @@ let update : HttpHandler =
 
 
 let router : HttpHandler =
-    choose [ POST >=> route "/" >=> create
-             GET >=> route "/" >=> authorize >=> show
+    choose [ POST  >=> route "/" >=> create
+             GET   >=> route "/" >=> authorize >=> show
              PATCH >=> route "/" >=> authorize >=> update ]
