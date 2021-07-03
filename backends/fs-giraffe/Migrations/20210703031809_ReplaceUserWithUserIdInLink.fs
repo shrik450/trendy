@@ -10,10 +10,17 @@ open Microsoft.EntityFrameworkCore.Storage.ValueConversion
 open Trendy.Contexts
 
 [<DbContext(typeof<LinksContext.LinksContext>)>]
-type LinksContextModelSnapshot() =
-    inherit ModelSnapshot()
+[<Migration("20210703031809_ReplaceUserWithUserIdInLink")>]
+type ReplaceUserWithUserIdInLink() =
+    inherit Migration()
 
-    override this.BuildModel(modelBuilder: ModelBuilder) =
+    override this.Up(migrationBuilder:MigrationBuilder) =
+        ()
+
+    override this.Down(migrationBuilder:MigrationBuilder) =
+        ()
+
+    override this.BuildTargetModel(modelBuilder: ModelBuilder) =
         modelBuilder
             .HasAnnotation("ProductVersion", "5.0.7")
             |> ignore

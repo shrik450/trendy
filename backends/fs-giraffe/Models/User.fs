@@ -16,13 +16,10 @@ type AllowedParams =
       ConfirmPassword: string }
 
 let userOfAllowedParams (allowedParams : AllowedParams) : T =
-    {
-        Id = allowedParams.Id
-        Name = allowedParams.Name
-        Email = allowedParams.Email
-        EncryptedPassword = allowedParams.Password |> BCrypt.EnhancedHashPassword
-        Links = []
-    }
+    { Id = allowedParams.Id
+      Name = allowedParams.Name
+      Email = allowedParams.Email
+      EncryptedPassword = allowedParams.Password |> BCrypt.EnhancedHashPassword }
 
 let findByEmail (dbContext : LinksContext) (email : string) : Result<T, string> =
     query {
