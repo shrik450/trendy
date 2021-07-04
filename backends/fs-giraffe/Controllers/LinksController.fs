@@ -4,6 +4,7 @@ open FSharp.Control.Tasks
 open Microsoft.AspNetCore.Http
 open Giraffe
 
+open Microsoft.EntityFrameworkCore
 open Microsoft.Extensions.Logging
 open Trendy.Services
 open Trendy.Utils
@@ -29,6 +30,12 @@ let pageOfQueryParams { After = after; Size = size } =
 let queryParamsOrDefault (a: QueryParams) =
     { After = valueOrFallback a.After 0
       Size = valueOrFallback a.Size 25 }
+
+let updateParamsOrDefault (a : Link.T) (b : BodyParams) : Link.T =
+    { Id = a.Id
+      Url = a.Url
+      Notes = valueOrFallback b.Notes a.Notes
+      UserId = a.UserId }
 
 let serializeLink (link: Link.T) =
     { Id = link.Id
@@ -74,7 +81,7 @@ let show (requestParams: RouteParams) : HttpHandler =
                 | Ok link ->
                     return! Successful.ok (json (serializeLink link)) next ctx
                 | Error _ ->
-                    return! RequestErrors.notFound notFoundResponse next ctx
+                    return! handleNotFound next ctx
             | Error errorMessage ->
                 return!
                     handleMissingUser log "links index" errorMessage next ctx
@@ -110,8 +117,45 @@ let create : HttpHandler =
                     handleMissingUser log "links create" errorMessage next ctx
         }
 
+let update (requestParams: RouteParams) : HttpHandler =
+    fun next ctx ->
+        task {
+            let dbContext = ctx.GetService<LinksContext>()
+            let log = ctx.GetLogger<ILogger>()
+
+            match! currentUser ctx with
+            | Ok user ->
+                let userLinks = Link.ofUser dbContext.Links user
+
+                match Link.findById userLinks requestParams.Id with
+                | Ok link ->
+                    let! updateParams = ctx.BindJsonAsync<BodyParams>()
+
+                    match LinkValidation.validate dbContext updateParams with
+                    | Ok updateParams ->
+                        dbContext.Entry(link).State <- EntityState.Detached
+
+                        updateParams
+                        |> updateParamsOrDefault link
+                        |> dbContext.Links.Update
+                        |> ignore
+
+                        let! _ = dbContext.SaveChangesAsync()
+                        return! Successful.NO_CONTENT next ctx
+                    | Error errors ->
+                        return! handleInvalidEntity errors next ctx
+                | Error _ ->
+                    return! handleNotFound next ctx
+            | Error errorMessage ->
+                return!
+                    handleMissingUser log "links update" errorMessage next ctx
+
+        }
+
 let router : HttpHandler =
     authorize
     >=> choose [ GET >=> route "/" >=> index
                  GET >=> routeBind<RouteParams> "/{id}(/?)" show
-                 POST >=> route "/" >=> create ]
+                 POST >=> route "/" >=> create
+                 PATCH
+                 >=> routeBind<RouteParams> "/{id}(/?)" update ]

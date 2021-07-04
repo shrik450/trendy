@@ -11,6 +11,9 @@ let handleMissingUser (log: ILogger) (loc: string) (errorMessage: string) =
 
     RequestErrors.UNAUTHORIZED "Basic" "App" (json {| error = "User not found." |})
 
+let handleNotFound : HttpHandler =
+    RequestErrors.notFound notFoundResponse
+
 let handleInvalidEntity errors =
     let response = {| errors = errors |} |> json
     RequestErrors.unprocessableEntity response
