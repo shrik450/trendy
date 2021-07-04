@@ -25,6 +25,11 @@ module Utils =
         | null -> fallback
         | _ -> value
 
+    let valueOrFallbackO value fallback =
+        match value with
+        | Some v -> v
+        | None -> fallback
+
     let resultOfOption errorMessage opt =
         match opt with
         | Some value -> Ok value

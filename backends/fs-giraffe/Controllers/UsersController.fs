@@ -12,6 +12,7 @@ open Trendy.Models
 open Trendy.Contexts.LinksContext
 open Trendy.Services
 open Trendy.Services.Authentication
+open Trendy.Controllers.Common
 
 [<CLIMutable>]
 type BodyParams =
@@ -71,8 +72,7 @@ let create : HttpHandler =
 
             match validationResult with
             | Error errors ->
-                let response = {| errors = errors |} |> json
-                return! RequestErrors.unprocessableEntity response next ctx
+                return! handleInvalidEntity errors next ctx
             | Ok validatedParams ->
                 validatedParams
                 |> User.userOfAllowedParams
@@ -98,8 +98,7 @@ let update : HttpHandler =
 
                 match validationResult with
                 | Error errors ->
-                    let response = {| errors = errors |} |> json
-                    return! RequestErrors.unprocessableEntity response next ctx
+                    return! handleInvalidEntity errors next ctx
                 | Ok validatedParams ->
                     dbContext.Entry(user).State <- EntityState.Detached
 

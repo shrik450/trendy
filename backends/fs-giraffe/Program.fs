@@ -10,6 +10,7 @@ open Microsoft.Extensions.DependencyInjection
 open Giraffe
 
 open Microsoft.IdentityModel.Tokens
+open Trendy.Controllers.Common
 open Trendy.HttpHandlers
 open Trendy.Contexts
 open Trendy.Configuration
@@ -22,7 +23,7 @@ open System.Text
 
 let webApp =
     choose [ router
-             setStatusCode 404 >=> text "Not Found" ]
+             setStatusCode 404 >=> notFoundResponse ]
 
 // ---------------------------------
 // Error handler
