@@ -1,5 +1,6 @@
 namespace Trendy
 
+open System
 open FSharp.Control.Tasks
 open System.Threading.Tasks
 
@@ -29,6 +30,11 @@ module Utils =
         match value with
         | Some v -> v
         | None -> fallback
+
+    let valueOrFallbackN (value : 'a Nullable) (fallback : 'a) =
+        match value.HasValue with
+        | true -> value.Value
+        | false -> fallback
 
     let resultOfOption errorMessage opt =
         match opt with

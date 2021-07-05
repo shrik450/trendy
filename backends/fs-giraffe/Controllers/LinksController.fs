@@ -1,11 +1,13 @@
 module Trendy.Controllers.LinksController
 
+open System
 open FSharp.Control.Tasks
 open Microsoft.AspNetCore.Http
 open Giraffe
 
 open Microsoft.EntityFrameworkCore
 open Microsoft.Extensions.Logging
+open Microsoft.VisualBasic.CompilerServices
 open Trendy.Services
 open Trendy.Utils
 open Trendy.Contexts.LinksContext
@@ -17,21 +19,28 @@ open Trendy.Controllers.Common
 type RouteParams = { Id: int }
 
 [<CLIMutable>]
-type QueryParams = { After: int; Size: int }
+type QueryParams =
+    // int is a primitive, so an uninitialized int is 0.
+    // Because we can't distinguish from an uninitialized 0 and a 0 sent
+    // by the user, we have to specifically mark these ints as nullable.
+    { After: int Nullable
+      Size: int Nullable }
+
+type StrongQueryParams = { After: int; Size: int }
 
 [<CLIMutable>]
 type BodyParams = Link.AllowedParams
 
 type SerializedLink = { Id: int; Url: string; Notes: string }
 
-let pageOfQueryParams { After = after; Size = size } =
-    Pagination.page after size
+let pageOfQueryParams ({ After = after; Size = size }: StrongQueryParams) =
+    Pagination.page size after
 
-let queryParamsOrDefault (a: QueryParams) =
-    { After = valueOrFallback a.After 0
-      Size = valueOrFallback a.Size 25 }
+let queryParamsOrDefault (a: QueryParams) : StrongQueryParams =
+    { After = valueOrFallbackN a.After 0
+      Size = valueOrFallbackN a.Size 25 }
 
-let updateParamsOrDefault (a : Link.T) (b : BodyParams) : Link.T =
+let updateParamsOrDefault (a: Link.T) (b: BodyParams) : Link.T =
     { Id = a.Id
       Url = a.Url
       Notes = valueOrFallback b.Notes a.Notes
@@ -43,15 +52,13 @@ let serializeLink (link: Link.T) =
       Notes = link.Notes }
 
 let index : HttpHandler =
-    fun (next: HttpFunc) (ctx: HttpContext) ->
+    fun next ctx ->
         task {
             let dbContext = ctx.GetService<LinksContext>()
             let log = ctx.GetLogger<ILogger>()
 
             match! currentUser ctx with
             | Ok user ->
-                log.LogInformation("Processing for user {u}", user)
-
                 let records =
                     user
                     |> Link.ofUser dbContext.Links
@@ -80,8 +87,7 @@ let show (requestParams: RouteParams) : HttpHandler =
                 match Link.findById userLinks requestParams.Id with
                 | Ok link ->
                     return! Successful.ok (json (serializeLink link)) next ctx
-                | Error _ ->
-                    return! handleNotFound next ctx
+                | Error _ -> return! handleNotFound next ctx
             | Error errorMessage ->
                 return!
                     handleMissingUser log "links index" errorMessage next ctx
@@ -144,8 +150,7 @@ let update (requestParams: RouteParams) : HttpHandler =
                         return! Successful.NO_CONTENT next ctx
                     | Error errors ->
                         return! handleInvalidEntity errors next ctx
-                | Error _ ->
-                    return! handleNotFound next ctx
+                | Error _ -> return! handleNotFound next ctx
             | Error errorMessage ->
                 return!
                     handleMissingUser log "links update" errorMessage next ctx
